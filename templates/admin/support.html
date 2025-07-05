@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-white">Support Messages</h1>
+        <div class="flex items-center space-x-4">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-yellow-400">{{ stats.open }}</div>
+                <div class="text-gray-400 text-sm">Open</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-400">{{ stats.urgent }}</div>
+                <div class="text-gray-400 text-sm">Urgent</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="glass-card p-4 rounded-xl text-center">
+            <div class="text-2xl font-bold text-blue-400">{{ stats.total }}</div>
+            <div class="text-gray-400 text-sm">Total Messages</div>
+        </div>
+        <div class="glass-card p-4 rounded-xl text-center">
+            <div class="text-2xl font-bold text-yellow-400">{{ stats.open }}</div>
+            <div class="text-gray-400 text-sm">Open Messages</div>
+        </div>
+        <div class="glass-card p-4 rounded-xl text-center">
+            <div class="text-2xl font-bold text-green-400">{{ stats.replied }}</div>
+            <div class="text-gray-400 text-sm">Replied</div>
+        </div>
+        <div class="glass-card p-4 rounded-xl text-center">
+            <div class="text-2xl font-bold text-red-400">{{ stats.urgent }}</div>
+            <div class="text-gray-400 text-sm">Urgent Priority</div>
+        </div>
+    </div>
+
+    <!-- Messages List -->
+    <div class="space-y-4">
+        {% for message in messages %}
+        <div class="glass-card p-6 rounded-xl {% if message.priority == 'urgent' %}border-l-4 border-red-500{% elif message.priority == 'high' %}border-l-4 border-orange-500{% endif %}">
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-bold">{{ message.user.username[0].upper() }}</span>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-semibold">{{ message.subject }}</h3>
+                            <p class="text-gray-400 text-sm">by {{ message.user.username }} • {{ message.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2 mb-3">
+                        <span class="px-2 py-1 {% if message.status == 'open' %}bg-yellow-600 text-yellow-100{% elif message.status == 'replied' %}bg-green-600 text-green-100{% else %}bg-gray-600 text-gray-100{% endif %} rounded-full text-xs">
+                            {{ message.status.title() }}
+                        </span>
+                        <span class="px-2 py-1 {% if message.priority == 'urgent' %}bg-red-600 text-red-100{% elif message.priority == 'high' %}bg-orange-600 text-orange-100{% else %}bg-blue-600 text-blue-100{% endif %} rounded-full text-xs">
+                            {{ message.priority.title() }} Priority
+                        </span>
+                        <span class="px-2 py-1 {% if message.problem_type == 'account' %}bg-cyan-600 text-cyan-100{% elif message.problem_type == 'staking' %}bg-green-600 text-green-100{% elif message.problem_type == 'deposits' %}bg-yellow-600 text-yellow-100{% elif message.problem_type == 'technical' %}bg-red-600 text-red-100{% else %}bg-gray-600 text-gray-100{% endif %} rounded-full text-xs">
+                            <i class="fas fa-{% if message.problem_type == 'account' %}user{% elif message.problem_type == 'staking' %}coins{% elif message.problem_type == 'deposits' %}wallet{% elif message.problem_type == 'technical' %}cog{% else %}question{% endif %} mr-1"></i>{{ message.problem_type.title() }}
+                        </span>
+                        {% if message.user.phone_number %}
+                        <span class="px-2 py-1 bg-purple-600 text-purple-100 rounded-full text-xs">
+                            <i class="fas fa-phone mr-1"></i>{{ message.user.phone_number }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="flex space-x-2">
+                    <a href="{{ url_for('admin_support_reply', message_id=message.id) }}" 
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-reply mr-2"></i>Reply
+                    </a>
+                    {% if message.status == 'open' %}
+                    <button onclick="markResolved({{ message.id }})" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-check mr-2"></i>Mark Resolved
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Message Content -->
+            <div class="bg-gray-800/50 rounded-lg p-4 mb-4">
+                <p class="text-gray-300 text-sm">{{ message.message }}</p>
+            </div>
+
+            <!-- Admin Reply (if exists) -->
+            {% if message.admin_reply %}
+            <div class="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg p-4 border-l-4 border-blue-500">
+                <div class="flex items-center space-x-2 mb-2">
+                    <i class="fas fa-user-shield text-blue-400"></i>
+                    <span class="text-blue-400 font-medium text-sm">Your Reply</span>
+                    {% if message.replied_at %}
+                    <span class="text-gray-400 text-xs">{{ message.replied_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    {% endif %}
+                </div>
+                <p class="text-gray-300 text-sm">{{ message.admin_reply }}</p>
+            </div>
+            {% endif %}
+
+            <!-- User Contact Info -->
+            <div class="mt-4 pt-4 border-t border-gray-700">
+                <div class="flex items-center space-x-4 text-sm text-gray-400">
+                    <span><i class="fas fa-envelope mr-1"></i>{{ message.user.email }}</span>
+                    {% if message.user.phone_number %}
+                    <span><i class="fas fa-phone mr-1"></i>{{ message.user.phone_number }}</span>
+                    {% endif %}
+                    <span><i class="fas fa-wallet mr-1"></i>${{ "%.2f"|format(message.user.usdt_balance) }} USDT</span>
+                    <span><i class="fas fa-users mr-1"></i>{{ message.user.get_referral_count() }} referrals</span>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-inbox text-gray-500 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-400 mb-2">No Support Messages</h3>
+            <p class="text-gray-500">When users send support messages, they will appear here</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function markResolved(messageId) {
+    if (confirm('Mark this message as resolved?')) {
+        fetch(`/admin/support/${messageId}/reply`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `admin_reply=${encodeURIComponent('Issue resolved.')}&status=closed`
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error marking as resolved');
+            }
+        })
+        .catch(error => {
+            alert('Network error occurred');
+        });
+    }
+}
+</script>
+{% endblock %}

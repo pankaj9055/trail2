@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6 max-w-md">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-white">Staking</h1>
+            <p class="text-gray-300">Grow your USDT holdings</p>
+        </div>
+        <div class="text-right">
+            <p class="text-gray-300 text-sm">Available Balance</p>
+            <p class="text-white font-bold text-lg">${{ "%.2f"|format(current_user.usdt_balance) }}</p>
+        </div>
+    </header>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="glass-card p-4 rounded-xl">
+            <div class="text-center">
+                <p class="text-gray-300 text-sm">Total Staked</p>
+                <p class="text-white font-bold text-xl">${{ "%.2f"|format(current_user.total_staked) }}</p>
+            </div>
+        </div>
+        <div class="glass-card p-4 rounded-xl">
+            <div class="text-center">
+                <p class="text-gray-300 text-sm">Total Earned</p>
+                <p class="text-green-400 font-bold text-xl">${{ "%.2f"|format(current_user.total_earned) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staking Form -->
+    <div class="glass-card p-6 rounded-xl mb-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Create New Stake</h3>
+        
+        <form method="POST" id="stakeForm">
+            {{ form.hidden_tag() }}
+            
+            <!-- Coin Selection -->
+            <div class="mb-4">
+                <label class="block text-white text-sm font-medium mb-2">Select Coin</label>
+                <div class="grid grid-cols-2 gap-2">
+                    {% for coin in coins %}
+                    <label class="coin-option cursor-pointer">
+                        <input type="radio" name="coin_id" value="{{ coin.id }}" class="hidden coin-radio" 
+                               data-symbol="{{ coin.symbol }}" data-min="{{ coin.min_stake }}">
+                        <div class="glass-card p-3 rounded-lg text-center hover:bg-purple-600/30 transition-all">
+                            <div class="w-10 h-10 mx-auto mb-2 flex items-center justify-center">
+                                {% if coin.symbol == 'ETH' %}
+                                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                                        <svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M15.927 23.959l-9.823-5.797 9.817 13.839 9.828-13.839z" fill="#8c8c8c"/>
+                                            <path d="M16.073 0L6.25 18.162l9.823 5.797L25.75 18.162z" fill="#3c3c3b"/>
+                                        </svg>
+                                    </div>
+                                {% elif coin.symbol == 'BNB' %}
+                                    <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
+                                        <svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M16 32C7.163 32 0 24.837 0 16S7.163 0 16 0s16 7.163 16 16-7.163 16-16 16z" fill="#f3ba2f"/>
+                                            <path d="M12.116 14.404L16 10.52l3.886 3.886 2.26-2.26L16 6l-6.144 6.144 2.26 2.26zM6 16l2.26-2.26L10.52 16l-2.26 2.26L6 16zm6.116 1.596L16 21.48l3.886-3.886 2.26 2.26L16 26l-6.144-6.144 2.26-2.26zM21.48 16l2.26-2.26L26 16l-2.26 2.26L21.48 16z" fill="#fff"/>
+                                        </svg>
+                                    </div>
+                                {% elif coin.symbol == 'SOL' %}
+                                    <div class="w-10 h-10 bg-black rounded-full flex items-center justify-center">
+                                        <div class="w-6 h-6 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-sm flex items-center justify-center">
+                                            <span class="text-white text-xs font-bold">S</span>
+                                        </div>
+                                    </div>
+                                {% elif coin.symbol == 'TRX' %}
+                                    <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center">
+                                        <svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M16 32C7.163 32 0 24.837 0 16S7.163 0 16 0s16 7.163 16 16-7.163 16-16 16z" fill="#ef0027"/>
+                                            <path d="M21.932 10.68l-6.4-6.4c-.32-.32-.84-.32-1.16 0l-6.4 6.4c-.32.32-.32.84 0 1.16l6.4 6.4c.16.16.37.24.58.24s.42-.08.58-.24l6.4-6.4c.32-.32.32-.84 0-1.16z" fill="#fff"/>
+                                        </svg>
+                                    </div>
+                                {% elif coin.symbol == 'DOT' %}
+                                    <div class="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center">
+                                        <svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="16" cy="16" r="16" fill="#e6007a"/>
+                                            <circle cx="16" cy="16" r="5" fill="#fff"/>
+                                            <circle cx="16" cy="6" r="3" fill="#fff"/>
+                                            <circle cx="16" cy="26" r="3" fill="#fff"/>
+                                            <circle cx="6" cy="16" r="3" fill="#fff"/>
+                                            <circle cx="26" cy="16" r="3" fill="#fff"/>
+                                        </svg>
+                                    </div>
+                                {% elif coin.symbol == 'BTC' %}
+                                    <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+                                        <svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M16 32C7.163 32 0 24.837 0 16S7.163 0 16 0s16 7.163 16 16-7.163 16-16 16z" fill="#f7931a"/>
+                                            <path d="M23.189 14.02c.314-2.096-1.283-3.223-3.465-3.975l.708-2.84-1.728-.43-.69 2.765c-.454-.114-.92-.22-1.385-.326l.695-2.783L15.596 6l-.708 2.839c-.376-.086-.746-.17-1.104-.26l.002-.009-2.384-.595-.46 1.846s1.283.294 1.256.312c.7.175.826.638.805 1.006l-.806 3.235c.048.012.11.03.18.057l-.183-.045-1.13 4.532c-.086.212-.303.531-.793.41.018.025-1.256-.313-1.256-.313l-.858 1.978 2.25.561c.418.105.828.215 1.231.318l-.715 2.872 1.727.43.708-2.84c.472.127.93.245 1.378.357l-.706 2.828 1.728.43.715-2.866c2.948.558 5.164.333 6.097-2.333.752-2.146-.037-3.385-1.588-4.192 1.13-.26 1.98-1.003 2.207-2.538zm-3.95 5.538c-.533 2.147-4.148.986-5.32.695l.95-3.805c1.172.293 4.929.872 4.37 3.11zm.535-5.569c-.487 1.953-3.495.96-4.47.717l.86-3.45c.975.243 4.118.696 3.61 2.733z" fill="#fff"/>
+                                        </svg>
+                                    </div>
+                                {% elif coin.symbol == 'LTC' %}
+                                    <div class="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center">
+                                        <svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M16 32C7.163 32 0 24.837 0 16S7.163 0 16 0s16 7.163 16 16-7.163 16-16 16z" fill="#bfbbbb"/>
+                                            <path d="M10.427 19.214L9 23.919h14L24 21H14.213l1.015-4.686-1.905-.512-.857 3.948-3.05-.812.44-1.657L7.95 16.77l-.857 3.948-1.905-.512L6.203 16.26l1.905.512-.44 1.657 3.05.812-.857 3.948 1.905.512L12.78 20.74l3.05.812-.44 1.657 1.905.512.857-3.948 3.05.812-.44 1.657 1.905.512L23.78 18.26l-1.905-.512.44-1.657-3.05-.812.857-3.948-1.905-.512L17.203 14.76l-3.05-.812.44-1.657-1.905-.512-.857 3.948-3.05-.812.44-1.657-1.905-.512L6.203 16.26z" fill="#fff"/>
+                                        </svg>
+                                    </div>
+                                {% else %}
+                                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs font-bold">{{ coin.symbol[:3] }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <p class="text-white text-sm font-medium">{{ coin.symbol }}</p>
+                            <p class="text-gray-400 text-xs">{{ coin.name }}</p>
+                            <p class="text-gray-400 text-xs">Min: ${{ coin.min_stake }}</p>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Plan Selection -->
+            <div class="mb-4">
+                <label class="block text-white text-sm font-medium mb-2">Select Plan</label>
+                <div class="space-y-2">
+                    {% for plan in plans %}
+                    <label class="plan-option cursor-pointer">
+                        <input type="radio" name="plan_id" value="{{ plan.id }}" class="hidden plan-radio"
+                               data-days="{{ plan.duration_days }}" data-rate="{{ plan.interest_rate }}">
+                        <div class="glass-card p-3 rounded-lg hover:bg-purple-600/30 transition-all">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-white font-medium">{{ plan.duration_days }} Days</p>
+                                    <p class="text-gray-300 text-sm">{{ plan.interest_rate }}% Daily Interest</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-green-400 font-bold">{{ "%.1f"|format(plan.interest_rate * plan.duration_days) }}%</p>
+                                    <p class="text-gray-400 text-xs">Total Return</p>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Amount Input -->
+            <div class="mb-6">
+                <label class="block text-white text-sm font-medium mb-2">Amount (USDT)</label>
+                <div class="relative">
+                    <input type="number" name="amount" step="0.01" min="1" 
+                           class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                           placeholder="Enter amount" required>
+                    <span class="absolute right-3 top-3 text-gray-400">USDT</span>
+                </div>
+                <p id="minAmountInfo" class="text-yellow-400 text-xs mt-1 hidden">Minimum stake amount required</p>
+                <p id="maxAmountInfo" class="text-red-400 text-xs mt-1 hidden">Insufficient balance</p>
+            </div>
+
+            <!-- Investment Summary -->
+            <div id="investmentSummary" class="glass-card p-4 rounded-lg mb-4 hidden">
+                <h4 class="text-white font-medium mb-2">Investment Summary</h4>
+                <div class="space-y-1 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Coin:</span>
+                        <span class="text-white" id="summarycoin">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Duration:</span>
+                        <span class="text-white" id="summaryDuration">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Daily Interest:</span>
+                        <span class="text-white" id="summaryRate">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Total Return:</span>
+                        <span class="text-green-400 font-bold" id="summaryReturn">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="submitBtn" disabled
+                    class="w-full gradient-button py-3 rounded-lg font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed">
+                Create Stake
+            </button>
+        </form>
+    </div>
+
+    <!-- Active Stakes -->
+    {% if user_stakes %}
+    <div class="glass-card p-6 rounded-xl">
+        <h3 class="text-lg font-semibold text-white mb-4">Your Stakes</h3>
+        <div class="space-y-3">
+            {% for stake in user_stakes %}
+            <div class="glass-card p-4 rounded-lg">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex-1">
+                        <p class="text-white font-medium text-lg">{{ stake.coin.symbol }} Staking</p>
+                        <p class="text-gray-300 text-sm">Amount: ${{ "%.2f"|format(stake.amount) }} USDT</p>
+                        <p class="text-gray-300 text-sm">Plan: {{ stake.plan.duration_days }} days @ {{ stake.plan.interest_rate }}% daily</p>
+                    </div>
+                    <div class="text-right">
+                        {% if stake.status == 'active' %}
+                        <span class="inline-block px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-full">Active</span>
+                        {% elif stake.status == 'completed' %}
+                        <span class="inline-block px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded-full">Completed</span>
+                        {% elif stake.status == 'cancelled' %}
+                        <span class="inline-block px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-full">Cancelled</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Detailed stake info -->
+                <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div class="glass-card p-3 rounded-lg">
+                        <p class="text-green-400 font-bold text-lg">${{ "%.2f"|format(stake.calculate_current_return()) }}</p>
+                        <p class="text-gray-400 text-xs">Current Earnings</p>
+                    </div>
+                    <div class="glass-card p-3 rounded-lg">
+                        <p class="text-blue-400 font-bold text-lg">${{ "%.2f"|format(stake.total_return) }}</p>
+                        <p class="text-gray-400 text-xs">Total Expected</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                        <p class="text-gray-300 text-sm">Start Date:</p>
+                        <p class="text-white font-medium">{{ stake.start_date.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-300 text-sm">Maturity Date:</p>
+                        <p class="text-white font-medium">{{ stake.end_date.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                </div>
+                
+                {% if stake.status == 'active' %}
+                <div class="glass-card p-3 rounded-lg mb-3">
+                    {% if stake.is_mature %}
+                    <p class="text-green-400 font-bold">✓ Matured - Ready for withdrawal</p>
+                    {% else %}
+                    <p class="text-yellow-400 font-medium">{{ stake.days_remaining }} days remaining</p>
+                    <div class="w-full bg-gray-700 rounded-full h-2 mt-2">
+                        {% set progress = ((stake.plan.duration_days - stake.days_remaining) / stake.plan.duration_days * 100) %}
+                        <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style="width: {{ progress }}%"></div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                {% if stake.is_mature and not stake.withdrawn %}
+                <div class="mt-3 pt-3 border-t border-white/10">
+                    <a href="{{ url_for('withdraw_stake', stake_id=stake.id) }}" 
+                       class="w-full gradient-button block text-center py-2 rounded-lg text-white no-underline">
+                        Withdraw (Principal + Returns)
+                    </a>
+                </div>
+                {% elif stake.status == 'active' %}
+                <div class="mt-3 pt-3 border-t border-white/10">
+                    <a href="{{ url_for('cancel_stake', stake_id=stake.id) }}" 
+                       class="w-full glass-button block text-center py-2 rounded-lg text-white no-underline"
+                       onclick="return confirm('Cancel this stake? You will only get your principal back.')">
+                        Cancel Stake
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const coinRadios = document.querySelectorAll('.coin-radio');
+    const planRadios = document.querySelectorAll('.plan-radio');
+    const amountInput = document.querySelector('input[name="amount"]');
+    const submitBtn = document.getElementById('submitBtn');
+    const summary = document.getElementById('investmentSummary');
+    
+    let selectedCoin = null;
+    let selectedPlan = null;
+    
+    // Handle coin selection
+    coinRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Update visual selection
+            document.querySelectorAll('.coin-option .glass-card').forEach(card => {
+                card.classList.remove('ring-2', 'ring-purple-500', 'bg-purple-600/30');
+            });
+            this.parentElement.querySelector('.glass-card').classList.add('ring-2', 'ring-purple-500', 'bg-purple-600/30');
+            
+            selectedCoin = {
+                id: this.value,
+                symbol: this.dataset.symbol,
+                min: parseFloat(this.dataset.min)
+            };
+            updateForm();
+        });
+    });
+    
+    // Handle plan selection
+    planRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Update visual selection
+            document.querySelectorAll('.plan-option .glass-card').forEach(card => {
+                card.classList.remove('ring-2', 'ring-purple-500', 'bg-purple-600/30');
+            });
+            this.parentElement.querySelector('.glass-card').classList.add('ring-2', 'ring-purple-500', 'bg-purple-600/30');
+            
+            selectedPlan = {
+                id: this.value,
+                days: parseInt(this.dataset.days),
+                rate: parseFloat(this.dataset.rate)
+            };
+            updateForm();
+        });
+    });
+    
+    // Handle amount input
+    amountInput.addEventListener('input', updateForm);
+    
+    function updateForm() {
+        const amount = parseFloat(amountInput.value) || 0;
+        
+        // Check minimum amount
+        if (selectedCoin && amount > 0 && amount < selectedCoin.min) {
+            document.getElementById('minAmountInfo').textContent = `Minimum stake for ${selectedCoin.symbol} is $${selectedCoin.min}`;
+            document.getElementById('minAmountInfo').classList.remove('hidden');
+        } else {
+            document.getElementById('minAmountInfo').classList.add('hidden');
+        }
+        
+        // Check maximum amount (user balance)
+        const userBalance = {{ current_user.usdt_balance }};
+        if (amount > userBalance) {
+            document.getElementById('maxAmountInfo').classList.remove('hidden');
+        } else {
+            document.getElementById('maxAmountInfo').classList.add('hidden');
+        }
+        
+        // Update summary and enable submit
+        if (selectedCoin && selectedPlan && amount >= selectedCoin.min && amount <= userBalance) {
+            const totalReturn = amount * selectedPlan.rate * selectedPlan.days / 100;
+            
+            document.getElementById('summarycoin').textContent = selectedCoin.symbol;
+            document.getElementById('summaryDuration').textContent = selectedPlan.days + ' days';
+            document.getElementById('summaryRate').textContent = selectedPlan.rate + '%';
+            document.getElementById('summaryReturn').textContent = '$' + totalReturn.toFixed(2);
+            
+            summary.classList.remove('hidden');
+            submitBtn.disabled = false;
+        } else {
+            summary.classList.add('hidden');
+            submitBtn.disabled = true;
+        }
+    }
+});
+</script>
+
+<style>
+.gradient-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: all 0.3s ease;
+}
+.gradient-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+}
+</style>
+{% endblock %}

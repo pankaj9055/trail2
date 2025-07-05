@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6 max-w-6xl">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white">Activity Logs</h1>
+            <p class="text-gray-300">System activity monitoring</p>
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="{{ url_for('admin_dashboard') }}" class="glass-button px-4 py-2 rounded-lg text-white">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </header>
+
+    <!-- Activity Table -->
+    <div class="glass-card rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gradient-to-r from-purple-600 to-blue-600">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-white font-semibold">User</th>
+                        <th class="px-6 py-3 text-left text-white font-semibold">Action</th>
+                        <th class="px-6 py-3 text-left text-white font-semibold">Description</th>
+                        <th class="px-6 py-3 text-left text-white font-semibold">IP Address</th>
+                        <th class="px-6 py-3 text-left text-white font-semibold">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-700">
+                    {% for activity in activities.items %}
+                    <tr class="hover:bg-purple-600/20 transition-colors">
+                        <td class="px-6 py-4 text-white font-medium">
+                            {% if activity.user_id %}
+                                User #{{ activity.user_id }}
+                            {% else %}
+                                System
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-gray-300">{{ activity.action }}</td>
+                        <td class="px-6 py-4 text-gray-300">{{ activity.description }}</td>
+                        <td class="px-6 py-4 text-gray-300">{{ activity.ip_address or 'N/A' }}</td>
+                        <td class="px-6 py-4 text-gray-300">{{ activity.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if activities.pages > 1 %}
+        <div class="px-6 py-4 bg-gray-800/50 border-t border-gray-700">
+            <div class="flex justify-between items-center">
+                <div class="text-gray-300">
+                    Page {{ activities.page }} of {{ activities.pages }}
+                </div>
+                <div class="flex space-x-2">
+                    {% if activities.has_prev %}
+                        <a href="{{ url_for('admin_activity', page=activities.prev_num) }}" class="glass-button px-3 py-1 rounded text-sm text-white">
+                            Previous
+                        </a>
+                    {% endif %}
+                    {% if activities.has_next %}
+                        <a href="{{ url_for('admin_activity', page=activities.next_num) }}" class="glass-button px-3 py-1 rounded text-sm text-white">
+                            Next
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+}
+.glass-button {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+.glass-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+</style>
+{% endblock %}

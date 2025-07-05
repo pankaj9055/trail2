@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-white">Content Management</h1>
+        <a href="{{ url_for('admin_add_content') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+            <i class="fas fa-plus mr-2"></i>Add Content
+        </a>
+    </div>
+
+    <div class="grid gap-6">
+        <!-- Content organized by page -->
+        {% set current_page = '' %}
+        {% for content in contents %}
+            {% if content.page_name != current_page %}
+                {% set current_page = content.page_name %}
+                <div class="mb-4">
+                    <h2 class="text-xl font-semibold text-white mb-4 capitalize">{{ content.page_name }} Page</h2>
+                </div>
+            {% endif %}
+            
+            <div class="glass-card p-6 rounded-xl">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-file-alt text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-white">{{ content.section_name }}</h3>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-blue-600 text-blue-100 rounded-full text-xs">{{ content.page_name }}</span>
+                                    <span class="px-2 py-1 bg-gray-600 text-gray-100 rounded-full text-xs">{{ content.content_type }}</span>
+                                    <span class="px-2 py-1 {% if content.is_active %}bg-green-600 text-green-100{% else %}bg-red-600 text-red-100{% endif %} rounded-full text-xs">
+                                        {% if content.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-gray-400 text-sm">Content Preview</label>
+                                <div class="bg-gray-800 border border-gray-600 rounded-lg p-3 mt-1 max-h-32 overflow-y-auto">
+                                    {% if content.content_type == 'html' %}
+                                        <div class="text-gray-300 text-sm">{{ content.content[:200] }}{% if content.content|length > 200 %}...{% endif %}</div>
+                                    {% else %}
+                                        <p class="text-gray-300 text-sm">{{ content.content[:200] }}{% if content.content|length > 200 %}...{% endif %}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <label class="text-gray-400">Created</label>
+                                    <p class="text-white">{{ content.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-gray-400">Last Updated</label>
+                                    <p class="text-white">{{ content.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-2 ml-4">
+                        <a href="{{ url_for('admin_edit_content', content_id=content.id) }}" 
+                           class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button onclick="deleteContent({{ content.id }}, '{{ content.section_name }}')" 
+                                class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-file-alt text-gray-500 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-400 mb-2">No Content Created</h3>
+            <p class="text-gray-500 mb-4">Start managing your website content by adding your first section</p>
+            <a href="{{ url_for('admin_add_content') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors">
+                <i class="fas fa-plus mr-2"></i>Create First Content
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
+        <div class="glass-card p-4 rounded-xl text-center">
+            <div class="text-2xl font-bold text-green-400">{{ contents|selectattr('is_active')|list|length }}</div>
+            <div class="text-gray-400 text-sm">Active Content</div>
+        </div>
+        <div class="glass-card p-4 rounded-xl text-center">
+            <div class="text-2xl font-bold text-blue-400">{{ contents|selectattr('page_name', 'equalto', 'home')|list|length }}</div>
+            <div class="text-gray-400 text-sm">Home Page</div>
+        </div>
+        <div class="glass-card p-4 rounded-xl text-center">
+            <div class="text-2xl font-bold text-purple-400">{{ contents|selectattr('page_name', 'equalto', 'stake')|list|length }}</div>
+            <div class="text-gray-400 text-sm">Stake Page</div>
+        </div>
+        <div class="glass-card p-4 rounded-xl text-center">
+            <div class="text-2xl font-bold text-pink-400">{{ contents|selectattr('page_name', 'equalto', 'assets')|list|length }}</div>
+            <div class="text-gray-400 text-sm">Assets Page</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteContent(contentId, sectionName) {
+    if (confirm(`Are you sure you want to delete the content section "${sectionName}"? This action cannot be undone.`)) {
+        fetch(`/admin/content/${contentId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error deleting content section');
+            }
+        })
+        .catch(error => {
+            alert('Network error occurred');
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6 max-w-6xl">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white">Transactions Management</h1>
+            <p class="text-gray-300">Handle deposits and withdrawals</p>
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="{{ url_for('admin_dashboard') }}" class="glass-button px-4 py-2 rounded-lg text-white">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </header>
+
+    <!-- Deposits Section -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-white mb-4">
+            <i class="fas fa-plus-circle text-green-400 mr-2"></i>Deposits
+        </h2>
+        <div class="glass-card rounded-xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-green-600/20">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-white font-semibold">ID</th>
+                            <th class="px-6 py-4 text-left text-white font-semibold">User</th>
+                            <th class="px-6 py-4 text-left text-white font-semibold">Amount</th>
+                            <th class="px-6 py-4 text-left text-white font-semibold">Transaction ID</th>
+                            <th class="px-6 py-4 text-left text-white font-semibold">Status</th>
+                            <th class="px-6 py-4 text-left text-white font-semibold">Date</th>
+                            <th class="px-6 py-4 text-left text-white font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for deposit in deposits %}
+                        <tr class="border-t border-white/10 hover:bg-green-600/10">
+                            <td class="px-6 py-4 text-gray-300">{{ deposit.id }}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-white text-xs font-bold">{{ deposit.user.username[0].upper() }}</span>
+                                    </div>
+                                    <p class="text-white font-medium">{{ deposit.user.username }}</p>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-green-400 font-semibold">${{ "%.2f"|format(deposit.amount) }}</td>
+                            <td class="px-6 py-4 text-gray-300 font-mono text-sm">{{ deposit.transaction_id }}</td>
+                            <td class="px-6 py-4">
+                                {% if deposit.status == 'pending' %}
+                                <span class="inline-block px-3 py-1 bg-yellow-500/20 text-yellow-400 text-sm rounded-full">Pending</span>
+                                {% elif deposit.status == 'approved' %}
+                                <span class="inline-block px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-full">Approved</span>
+                                {% elif deposit.status == 'rejected' %}
+                                <span class="inline-block px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-full">Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-gray-300 text-sm">{{ deposit.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td class="px-6 py-4">
+                                {% if deposit.status == 'pending' %}
+                                <div class="flex space-x-2">
+                                    <a href="{{ url_for('admin_approve_deposit', deposit_id=deposit.id) }}" 
+                                       class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
+                                       onclick="return confirm('Approve this deposit?')">
+                                        <i class="fas fa-check mr-1"></i>Approve
+                                    </a>
+                                    <a href="{{ url_for('admin_reject_deposit', deposit_id=deposit.id) }}" 
+                                       class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition-colors"
+                                       onclick="return confirm('Reject this deposit?')">
+                                        <i class="fas fa-times mr-1"></i>Reject
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdrawals Section -->
+    <div>
+        <h2 class="text-2xl font-bold text-white mb-4">
+            <i class="fas fa-minus-circle text-red-400 mr-2"></i>Withdrawals
+        </h2>
+        <div class="glass-card rounded-xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-red-600/20">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-white font-semibold">ID</th>
+                            <th class="px-6 py-4 text-left text-white font-semibold">User</th>
+                            <th class="px-6 py-4 text-left text-white font-semibold">Amount</th>
+                            <th class="px-6 py-4 text-left text-white font-semibold">Wallet Address</th>
+                            <th class="px-6 py-4 text-left text-white font-semibold">Network</th>
+                            <th class="px-6 py-4 text-left text-white font-semibold">Status</th>
+                            <th class="px-6 py-4 text-left text-white font-semibold">Date</th>
+                            <th class="px-6 py-4 text-left text-white font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for withdrawal in withdrawals %}
+                        <tr class="border-t border-white/10 hover:bg-red-600/10">
+                            <td class="px-6 py-4 text-gray-300">{{ withdrawal.id }}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-white text-xs font-bold">{{ withdrawal.user.username[0].upper() }}</span>
+                                    </div>
+                                    <p class="text-white font-medium">{{ withdrawal.user.username }}</p>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-red-400 font-semibold">${{ "%.2f"|format(withdrawal.amount) }}</td>
+                            <td class="px-6 py-4 text-gray-300 font-mono text-xs">{{ withdrawal.wallet_address[:20] }}...</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-block px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">{{ withdrawal.network }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if withdrawal.status == 'pending' %}
+                                <span class="inline-block px-3 py-1 bg-yellow-500/20 text-yellow-400 text-sm rounded-full">Pending</span>
+                                {% elif withdrawal.status == 'approved' %}
+                                <span class="inline-block px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-full">Approved</span>
+                                {% elif withdrawal.status == 'rejected' %}
+                                <span class="inline-block px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-full">Rejected</span>
+                                {% elif withdrawal.status == 'completed' %}
+                                <span class="inline-block px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded-full">Completed</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-gray-300 text-sm">{{ withdrawal.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td class="px-6 py-4">
+                                {% if withdrawal.status == 'pending' %}
+                                <div class="flex space-x-2">
+                                    <a href="{{ url_for('admin_approve_withdrawal', withdrawal_id=withdrawal.id) }}" 
+                                       class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
+                                       onclick="return confirm('Approve this withdrawal?')">
+                                        <i class="fas fa-check mr-1"></i>Approve
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+}
+.glass-button {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+.glass-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+</style>
+{% endblock %}

@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6 max-w-md">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-white">Staking</h1>
+            <p class="text-gray-400">Grow your USDT holdings</p>
+        </div>
+        <div class="text-right">
+            <p class="text-gray-400 text-sm">Available Balance</p>
+            <p class="text-white font-bold text-lg">${{ "%.2f"|format(current_user.usdt_balance) }}</p>
+        </div>
+    </header>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="stat-card glass-card p-4 rounded-xl">
+            <div class="text-center">
+                <p class="text-gray-400 text-sm">Total Staked</p>
+                <p class="text-white font-bold text-xl">${{ "%.2f"|format(current_user.total_staked) }}</p>
+            </div>
+        </div>
+        <div class="stat-card glass-card p-4 rounded-xl">
+            <div class="text-center">
+                <p class="text-gray-400 text-sm">Total Earned</p>
+                <p class="text-green-400 font-bold text-xl">${{ "%.2f"|format(current_user.total_earned) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coin Selection -->
+    <div class="mb-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Select Coin to Stake</h3>
+        <div class="space-y-3">
+            {% for coin in coins %}
+            <div class="coin-card glass-card p-4 rounded-xl cursor-pointer hover:scale-105 transition-transform" 
+                 onclick="selectCoin({{ coin.id }}, '{{ coin.symbol }}', '{{ coin.name }}', {{ coin.min_stake }})">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold">{{ coin.symbol[:3] }}</span>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-semibold">{{ coin.symbol }}</h4>
+                            <p class="text-gray-400 text-sm">{{ coin.name }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        {% set plan = plans|selectattr('duration_days', 'equalto', 30)|first %}
+                        {% if plan %}
+                        <p class="text-green-400 font-bold">{{ plan.interest_rate }}% APR</p>
+                        {% endif %}
+                        <p class="text-gray-400 text-sm">Min {{ coin.min_stake }} USDT</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Staking Form -->
+    <div class="mb-6" id="stakingForm" style="display: none;">
+        <h3 class="text-lg font-semibold text-white mb-4">Stake Details</h3>
+        <form method="POST" class="space-y-4">
+            {{ form.hidden_tag() }}
+            
+            <div class="glass-card p-4 rounded-xl">
+                <label class="block text-gray-400 text-sm mb-2">Selected Coin</label>
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                        <span class="text-white font-bold text-sm" id="selectedCoinSymbol">BTC</span>
+                    </div>
+                    <span class="text-white font-medium" id="selectedCoinName">Bitcoin</span>
+                </div>
+                {{ form.coin_id(class="hidden", id="coinIdInput") }}
+            </div>
+
+            <div class="glass-card p-4 rounded-xl">
+                <label class="block text-gray-400 text-sm mb-2">Staking Period</label>
+                {{ form.plan_id(class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500", onchange="updateInterestInfo()") }}
+            </div>
+
+            <div class="glass-card p-4 rounded-xl">
+                <label class="block text-gray-400 text-sm mb-2">Amount (USDT)</label>
+                {{ form.amount(class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500", placeholder="Enter amount", oninput="updateInterestInfo()") }}
+                <p class="text-gray-500 text-xs mt-1">Minimum: <span id="minStakeAmount">0</span> USDT</p>
+            </div>
+
+            <!-- Interest Info -->
+            <div class="glass-card p-4 rounded-xl bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-500/30" id="interestInfo" style="display: none;">
+                <h4 class="text-white font-semibold mb-3">Staking Summary</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Principal Amount:</span>
+                        <span class="text-white" id="principalAmount">$0.00</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Daily Interest:</span>
+                        <span class="text-green-400" id="dailyInterest">$0.00</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Total Return:</span>
+                        <span class="text-green-400 font-semibold" id="totalReturn">$0.00</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Final Amount:</span>
+                        <span class="text-white font-bold" id="finalAmount">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full gradient-button py-3 rounded-xl font-semibold transform hover:scale-105 transition-all duration-300">
+                <i class="fas fa-lock mr-2"></i>
+                Confirm Stake
+            </button>
+        </form>
+    </div>
+
+    <!-- Active Stakes -->
+    <div class="mb-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Your Stakes</h3>
+        <div class="space-y-3">
+            {% for stake in user_stakes %}
+            <div class="stake-item glass-card p-4 rounded-xl">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">{{ stake.coin.symbol }}</span>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-semibold">${{ "%.2f"|format(stake.amount) }}</h4>
+                            <p class="text-gray-400 text-sm">{{ stake.coin.name }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        {% if stake.status == 'active' %}
+                        <span class="px-2 py-1 bg-green-600 text-green-100 rounded-full text-xs">Active</span>
+                        {% elif stake.status == 'completed' %}
+                        <span class="px-2 py-1 bg-blue-600 text-blue-100 rounded-full text-xs">Completed</span>
+                        {% else %}
+                        <span class="px-2 py-1 bg-red-600 text-red-100 rounded-full text-xs">Cancelled</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-sm mb-3">
+                    <div>
+                        <p class="text-gray-400">Duration</p>
+                        <p class="text-white">{{ stake.plan.duration_days }} days</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400">Daily Rate</p>
+                        <p class="text-green-400">{{ stake.plan.interest_rate }}%</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400">Start Date</p>
+                        <p class="text-white">{{ stake.start_date.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400">End Date</p>
+                        <p class="text-white">{{ stake.end_date.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-600 pt-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-400 text-sm">Current Earnings</span>
+                        <span class="text-green-400 font-semibold">${{ "%.2f"|format(stake.calculate_current_return()) }}</span>
+                    </div>
+                    
+                    {% if stake.status == 'active' %}
+                        {% if stake.is_mature %}
+                        <a href="{{ url_for('withdraw_stake', stake_id=stake.id) }}" 
+                           class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-center block transition-colors">
+                            <i class="fas fa-download mr-2"></i>Withdraw
+                        </a>
+                        {% else %}
+                        <div class="flex space-x-2">
+                            <div class="flex-1 text-center">
+                                <p class="text-gray-400 text-xs">Days Remaining</p>
+                                <p class="text-white font-semibold">{{ stake.days_remaining }}</p>
+                            </div>
+                            <a href="{{ url_for('cancel_stake', stake_id=stake.id) }}" 
+                               class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                               onclick="return confirm('Are you sure? You will only receive the principal amount.')">
+                                Cancel
+                            </a>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <i class="fas fa-coins text-gray-500 text-3xl mb-4"></i>
+                <p class="text-gray-400">No stakes yet</p>
+                <p class="text-gray-500 text-sm">Select a coin above to start staking</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Staking Benefits -->
+    <div class="mb-6">
+        <h3 class="text-lg font-semibold text-white mb-4 fade-in">Staking Benefits & Features</h3>
+        <div class="space-y-4">
+            <div class="glass-card p-4 rounded-xl fade-in fade-in-delay-1">
+                <div class="flex items-start space-x-4">
+                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-percentage text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-semibold mb-1">High Yield Returns</h4>
+                        <p class="text-gray-300 text-sm">Earn up to 2.8% daily interest on your USDT holdings. Our advanced staking algorithms ensure competitive returns across all supported cryptocurrencies including BTC, ETH, BNB, and more.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-card p-4 rounded-xl fade-in fade-in-delay-2">
+                <div class="flex items-start space-x-4">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-clock text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-semibold mb-1">Flexible Terms</h4>
+                        <p class="text-gray-300 text-sm">Choose from multiple staking periods: 7 days for quick returns, 15 days for balanced growth, or 30 days for maximum earnings. Early withdrawal available with principal protection.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-card p-4 rounded-xl fade-in fade-in-delay-3">
+                <div class="flex items-start space-x-4">
+                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-shield-alt text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-semibold mb-1">Secure & Audited</h4>
+                        <p class="text-gray-300 text-sm">Your funds are protected by institutional-grade security protocols. Our smart contracts are regularly audited by top security firms ensuring maximum safety for your investments.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coin Performance -->
+    <div class="mb-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Coin Performance & Details</h3>
+        <div class="grid grid-cols-1 gap-3">
+            {% for coin in coins %}
+            <div class="glass-card p-4 rounded-xl hover:bg-white/15 transition-all duration-200 coin-info">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">{{ coin.symbol[:3] }}</span>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-semibold">{{ coin.symbol }}</h4>
+                            <p class="text-gray-400 text-sm">{{ coin.name }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-green-400 font-bold">Min: ${{ coin.min_stake }}</p>
+                        <p class="text-gray-400 text-sm">Market Leading</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Notice -->
+    <div class="glass-card p-4 rounded-xl bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-500/30">
+        <div class="flex items-start space-x-3">
+            <i class="fas fa-info-circle text-blue-400 mt-1"></i>
+            <div>
+                <p class="text-white font-medium mb-1">Important Notice</p>
+                <p class="text-gray-300 text-sm">Interest depends on market conditions. Your funds are secured by smart contracts. No third-party apps involved. Daily payouts are automatically calculated and added to your earnings.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const plans = {{ plans|tojson }};
+let selectedCoin = null;
+
+function selectCoin(coinId, symbol, name, minStake) {
+    selectedCoin = { id: coinId, symbol: symbol, name: name, minStake: minStake };
+    
+    document.getElementById('selectedCoinSymbol').textContent = symbol;
+    document.getElementById('selectedCoinName').textContent = name;
+    document.getElementById('coinIdInput').value = coinId;
+    document.getElementById('minStakeAmount').textContent = minStake;
+    document.getElementById('stakingForm').style.display = 'block';
+    
+    // Reset form
+    document.querySelector('input[name="amount"]').value = '';
+    document.getElementById('interestInfo').style.display = 'none';
+}
+
+function updateInterestInfo() {
+    const amount = parseFloat(document.querySelector('input[name="amount"]').value);
+    const planId = parseInt(document.querySelector('select[name="plan_id"]').value);
+    
+    if (!amount || !planId || !selectedCoin) return;
+    
+    const selectedPlan = plans.find(p => p.id === planId);
+    if (!selectedPlan) return;
+    
+    const dailyInterest = amount * selectedPlan.interest_rate / 100;
+    const totalReturn = dailyInterest * selectedPlan.duration_days;
+    const finalAmount = amount + totalReturn;
+    
+    document.getElementById('principalAmount').textContent = `$${amount.toFixed(2)}`;
+    document.getElementById('dailyInterest').textContent = `$${dailyInterest.toFixed(2)}`;
+    document.getElementById('totalReturn').textContent = `$${totalReturn.toFixed(2)}`;
+    document.getElementById('finalAmount').textContent = `$${finalAmount.toFixed(2)}`;
+    document.getElementById('interestInfo').style.display = 'block';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USDT Staking Platform</title>
+    
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a40 25%, #2d1b69 50%, #6B46C1 75%, #9333EA 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+        .glass-button {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .glass-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        .gradient-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .gradient-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-purple-900 to-pink-900 min-h-screen text-white">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="flex justify-between items-center p-6">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-coins text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        {{ settings.get('platform_name', 'USDT Staking Platform') }}
+                    </h1>
+                </div>
+            </div>
+            <div class="hidden md:flex space-x-4">
+                <a href="{{ url_for('login') }}" class="glass-button px-6 py-2 rounded-full text-white no-underline">Login</a>
+                <a href="{{ url_for('register') }}" class="gradient-button px-6 py-2 rounded-full text-white no-underline">Register</a>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="container mx-auto px-6 py-12">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8">
+                    <h2 class="text-5xl md:text-7xl font-bold leading-tight">
+                        <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                            Welcome to
+                        </span>
+                        <br>
+                        <span class="text-white">USDT Staking</span>
+                    </h2>
+                    
+                    <p class="text-xl text-gray-300 leading-relaxed">
+                        Secure your financial future with our advanced USDT staking platform. 
+                        Earn competitive returns while your assets remain completely safe.
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <a href="{{ url_for('register') }}" class="gradient-button inline-block px-8 py-4 rounded-full text-lg font-semibold text-white no-underline">
+                            <i class="fas fa-rocket mr-2"></i>
+                            Start Staking Now
+                        </a>
+                        <br>
+                        <a href="#features" class="glass-button inline-block px-8 py-4 rounded-full text-lg font-semibold text-white no-underline">
+                            <i class="fas fa-info mr-2"></i>
+                            Learn More
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="relative">
+                    <div class="glass-card p-8 rounded-2xl text-center">
+                        <div class="w-32 h-32 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-coins text-white text-5xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">Start Earning Today</h3>
+                        <p class="text-gray-300 mb-6">Join thousands of users earning passive income through our secure staking platform.</p>
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div>
+                                <div class="text-2xl font-bold text-green-400">15%</div>
+                                <div class="text-sm text-gray-400">Daily Returns</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-blue-400">24/7</div>
+                                <div class="text-sm text-gray-400">Support</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-20">
+            <div class="container mx-auto px-6">
+                <h3 class="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    Why Choose Our Platform?
+                </h3>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="glass-card p-6 rounded-2xl text-center">
+                        <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-shield-alt text-white text-2xl"></i>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-3">Secure Investment</h4>
+                        <p class="text-gray-400">Your funds are protected with enterprise-grade security and smart contracts.</p>
+                    </div>
+                    
+                    <div class="glass-card p-6 rounded-2xl text-center">
+                        <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-clock text-white text-2xl"></i>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-3">Flexible Staking</h4>
+                        <p class="text-gray-400">Choose from multiple staking periods to match your investment strategy.</p>
+                    </div>
+                    
+                    <div class="glass-card p-6 rounded-2xl text-center">
+                        <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-user-shield text-white text-2xl"></i>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-3">No Third-party Risk</h4>
+                        <p class="text-gray-400">Direct staking without intermediaries ensures maximum security and transparency.</p>
+                    </div>
+                    
+                    <div class="glass-card p-6 rounded-2xl text-center">
+                        <div class="w-16 h-16 bg-gradient-to-r from-pink-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-bolt text-white text-2xl"></i>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-3">Instant Withdrawals</h4>
+                        <p class="text-gray-400">Access your funds quickly with our streamlined withdrawal process.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mobile Actions -->
+        <div class="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-r from-purple-900 to-pink-900 backdrop-blur-lg border-t border-purple-500/30">
+            <div class="flex space-x-4">
+                <a href="{{ url_for('login') }}" class="flex-1 glass-button py-3 rounded-full text-center text-white no-underline">Login</a>
+                <a href="{{ url_for('register') }}" class="flex-1 gradient-button py-3 rounded-full text-center text-white no-underline">Register</a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-black/30 py-8 mt-20">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                        <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-coins text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold">USDT Staking Platform</span>
+                    </div>
+                    
+                    <div class="flex space-x-6 text-gray-400">
+                        <a href="#" class="hover:text-white transition-colors">Terms</a>
+                        <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                        <a href="#" class="hover:text-white transition-colors">Support</a>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400">
+                    <p>&copy; 2025 USDT Staking Platform. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

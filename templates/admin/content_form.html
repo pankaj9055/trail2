@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6 max-w-2xl">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-white">{{ title }}</h1>
+        <a href="{{ url_for('admin_content') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Content
+        </a>
+    </div>
+
+    <div class="glass-card p-6 rounded-xl">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            
+            <div class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        {{ form.page_name.label(class="block text-gray-400 text-sm mb-2") }}
+                        {{ form.page_name(class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500") }}
+                        {% for error in form.page_name.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    
+                    <div>
+                        {{ form.content_type.label(class="block text-gray-400 text-sm mb-2") }}
+                        {{ form.content_type(class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500") }}
+                        {% for error in form.content_type.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div>
+                    {{ form.section_name.label(class="block text-gray-400 text-sm mb-2") }}
+                    {{ form.section_name(class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500", placeholder="e.g., hero_title, benefits_description, security_tips") }}
+                    <p class="text-gray-500 text-xs mt-1">Use descriptive names like: hero_title, benefits_text, security_section, etc.</p>
+                    {% for error in form.section_name.errors %}
+                        <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.content.label(class="block text-gray-400 text-sm mb-2") }}
+                    {{ form.content(class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-3 text-white focus:outline-none focus:border-purple-500 resize-vertical min-h-32") }}
+                    <p class="text-gray-500 text-xs mt-1">This content will be displayed on the selected page. HTML tags are allowed if content type is set to HTML.</p>
+                    {% for error in form.content.errors %}
+                        <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    {{ form.is_active(class="w-4 h-4 text-purple-600 bg-gray-800 border-gray-600 rounded focus:ring-purple-500") }}
+                    {{ form.is_active.label(class="text-gray-400 text-sm") }}
+                </div>
+
+                <div class="flex space-x-4">
+                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors font-semibold">
+                        <i class="fas fa-save mr-2"></i>{{ 'Update Content' if content else 'Create Content' }}
+                    </button>
+                    <a href="{{ url_for('admin_content') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Content Guidelines -->
+    <div class="glass-card p-6 rounded-xl mt-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Content Guidelines</h3>
+        <div class="space-y-3 text-sm">
+            <div class="flex items-start space-x-3">
+                <i class="fas fa-lightbulb text-yellow-400 mt-1"></i>
+                <div>
+                    <p class="text-white font-medium">Section Names</p>
+                    <p class="text-gray-400">Use descriptive names: hero_title, benefits_description, security_tips, investment_guide</p>
+                </div>
+            </div>
+            <div class="flex items-start space-x-3">
+                <i class="fas fa-code text-blue-400 mt-1"></i>
+                <div>
+                    <p class="text-white font-medium">HTML Content</p>
+                    <p class="text-gray-400">For HTML content, you can use tags like &lt;h3&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, etc.</p>
+                </div>
+            </div>
+            <div class="flex items-start space-x-3">
+                <i class="fas fa-mobile-alt text-green-400 mt-1"></i>
+                <div>
+                    <p class="text-white font-medium">Mobile Friendly</p>
+                    <p class="text-gray-400">Keep content concise and mobile-friendly. Long paragraphs are automatically formatted.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Common Sections Examples -->
+    <div class="glass-card p-6 rounded-xl mt-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Common Section Examples</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+                <h4 class="text-purple-400 font-semibold mb-2">Home Page</h4>
+                <ul class="text-gray-400 space-y-1">
+                    <li>• hero_title</li>
+                    <li>• hero_subtitle</li>
+                    <li>• benefits_section</li>
+                    <li>• security_highlight</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-blue-400 font-semibold mb-2">Stake Page</h4>
+                <ul class="text-gray-400 space-y-1">
+                    <li>• staking_guide</li>
+                    <li>• risk_disclaimer</li>
+                    <li>• profit_calculator_info</li>
+                    <li>• investment_tips</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-green-400 font-semibold mb-2">Assets Page</h4>
+                <ul class="text-gray-400 space-y-1">
+                    <li>• portfolio_tips</li>
+                    <li>• withdrawal_guide</li>
+                    <li>• security_reminder</li>
+                    <li>• fee_explanation</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-pink-400 font-semibold mb-2">Profile Page</h4>
+                <ul class="text-gray-400 space-y-1">
+                    <li>• referral_benefits</li>
+                    <li>• account_security</li>
+                    <li>• premium_features</li>
+                    <li>• support_contact</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

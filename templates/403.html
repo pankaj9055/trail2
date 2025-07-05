@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center">
+    <div class="text-center">
+        <div class="glass-card p-8 rounded-xl">
+            <h1 class="text-6xl font-bold text-red-400 mb-4">403</h1>
+            <p class="text-xl text-gray-300 mb-6">Access Forbidden</p>
+            <p class="text-gray-400 mb-8">You don't have permission to access this resource.</p>
+            <div class="flex justify-center space-x-4">
+                <a href="{{ url_for('home') }}" class="glass-button px-6 py-3 rounded-lg text-white">
+                    <i class="fas fa-home mr-2"></i>Go Home
+                </a>
+                <a href="{{ url_for('login') }}" class="glass-button px-6 py-3 rounded-lg text-white">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

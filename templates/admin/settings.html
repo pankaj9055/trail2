@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6 max-w-4xl">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white">Platform Settings</h1>
+            <p class="text-gray-300">Configure platform parameters</p>
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="{{ url_for('admin_dashboard') }}" class="glass-button px-4 py-2 rounded-lg text-white">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </header>
+
+    <!-- Settings Form -->
+    <div class="glass-card p-8 rounded-xl">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Platform Name -->
+                <div class="md:col-span-2">
+                    <label class="block text-white text-sm font-medium mb-2">Platform Name</label>
+                    {{ form.platform_name(class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500") }}
+                </div>
+
+                <!-- Referral Rates -->
+                <div>
+                    <label class="block text-white text-sm font-medium mb-2">Level 1 Referral (%)</label>
+                    {{ form.referral_level_1(class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500") }}
+                </div>
+
+                <div>
+                    <label class="block text-white text-sm font-medium mb-2">Level 2 Referral (%)</label>
+                    {{ form.referral_level_2(class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500") }}
+                </div>
+
+                <div>
+                    <label class="block text-white text-sm font-medium mb-2">Level 3 Referral (%)</label>
+                    {{ form.referral_level_3(class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500") }}
+                </div>
+
+                <div>
+                    <label class="block text-white text-sm font-medium mb-2">Min Referral Activation ($)</label>
+                    {{ form.min_referral_activation(class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500") }}
+                </div>
+
+                <div>
+                    <label class="block text-white text-sm font-medium mb-2">Withdrawal Fee (%)</label>
+                    {{ form.withdrawal_fee(class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500") }}
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <button type="submit" class="gradient-button px-6 py-3 rounded-lg font-medium text-white">
+                    <i class="fas fa-save mr-2"></i>Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Current Settings Display -->
+    <div class="mt-8 glass-card p-6 rounded-xl">
+        <h3 class="text-xl font-bold text-white mb-4">Current Platform Settings</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="text-center p-4 bg-white/5 rounded-lg">
+                <p class="text-gray-300 text-sm">Platform Name</p>
+                <p class="text-white font-semibold">{{ current_settings.get('platform_name', 'USDT Staking') }}</p>
+            </div>
+            <div class="text-center p-4 bg-white/5 rounded-lg">
+                <p class="text-gray-300 text-sm">Level 1 Referral</p>
+                <p class="text-green-400 font-semibold">{{ current_settings.get('referral_level_1', '5') }}%</p>
+            </div>
+            <div class="text-center p-4 bg-white/5 rounded-lg">
+                <p class="text-gray-300 text-sm">Level 2 Referral</p>
+                <p class="text-blue-400 font-semibold">{{ current_settings.get('referral_level_2', '3') }}%</p>
+            </div>
+            <div class="text-center p-4 bg-white/5 rounded-lg">
+                <p class="text-gray-300 text-sm">Level 3 Referral</p>
+                <p class="text-yellow-400 font-semibold">{{ current_settings.get('referral_level_3', '2') }}%</p>
+            </div>
+            <div class="text-center p-4 bg-white/5 rounded-lg">
+                <p class="text-gray-300 text-sm">Min Activation</p>
+                <p class="text-purple-400 font-semibold">${{ current_settings.get('min_referral_activation', '100') }}</p>
+            </div>
+            <div class="text-center p-4 bg-white/5 rounded-lg">
+                <p class="text-gray-300 text-sm">Withdrawal Fee</p>
+                <p class="text-red-400 font-semibold">{{ current_settings.get('withdrawal_fee', '2') }}%</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+}
+.glass-button {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+.glass-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+.gradient-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: all 0.3s ease;
+}
+.gradient-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+</style>
+{% endblock %}

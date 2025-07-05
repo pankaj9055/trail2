@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6 max-w-md">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-white">Welcome back</h1>
+            <p class="text-gray-400">{{ current_user.username }}</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <a href="{{ url_for('logout') }}" class="p-2 bg-red-600 rounded-full">
+                <i class="fas fa-sign-out-alt text-white"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- Balance Cards -->
+    <div class="space-y-4 mb-6">
+        <!-- USDT Balance -->
+        <div class="balance-card glass-card p-6 rounded-2xl">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-gray-400 text-sm">USDT Balance</p>
+                    <h2 class="text-3xl font-bold text-white">${{ "%.2f"|format(user_stats.usdt_balance) }}</h2>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-dollar-sign text-white"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-2 gap-4">
+            <div class="stat-card glass-card p-4 rounded-xl">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-coins text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-xs">Total Staked</p>
+                        <p class="text-white font-semibold">${{ "%.2f"|format(user_stats.total_staked) }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card glass-card p-4 rounded-xl">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-chart-line text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-xs">Total Earned</p>
+                        <p class="text-white font-semibold">${{ "%.2f"|format(user_stats.total_earned) }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Referral Bonus -->
+        <div class="stat-card glass-card p-4 rounded-xl">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-gray-400 text-sm">Referral Bonus</p>
+                    <h3 class="text-xl font-bold text-green-400">${{ "%.2f"|format(user_stats.referral_bonus) }}</h3>
+                </div>
+                <div class="w-10 h-10 bg-gradient-to-r from-pink-500 to-pink-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-users text-white"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mb-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <a href="{{ url_for('stake') }}" class="action-card glass-card p-4 rounded-xl text-center hover:scale-105 transition-transform">
+                <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i class="fas fa-plus text-white"></i>
+                </div>
+                <p class="text-white font-medium">Stake Now</p>
+            </a>
+
+            <a href="{{ url_for('assets') }}" class="action-card glass-card p-4 rounded-xl text-center hover:scale-105 transition-transform">
+                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i class="fas fa-wallet text-white"></i>
+                </div>
+                <p class="text-white font-medium">Deposit</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Stakes -->
+    <div class="mb-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Recent Stakes</h3>
+        <div class="space-y-3">
+            {% for stake in recent_stakes %}
+            <div class="stake-item glass-card p-4 rounded-xl">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">{{ stake.coin.symbol }}</span>
+                        </div>
+                        <div>
+                            <p class="text-white font-medium">${{ "%.2f"|format(stake.amount) }}</p>
+                            <p class="text-gray-400 text-sm">{{ stake.plan.duration_days }} days • {{ stake.plan.interest_rate }}% daily</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        {% if stake.status == 'active' %}
+                        <span class="px-2 py-1 bg-green-600 text-green-100 rounded-full text-xs">Active</span>
+                        {% elif stake.status == 'completed' %}
+                        <span class="px-2 py-1 bg-blue-600 text-blue-100 rounded-full text-xs">Completed</span>
+                        {% else %}
+                        <span class="px-2 py-1 bg-red-600 text-red-100 rounded-full text-xs">Cancelled</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <i class="fas fa-coins text-gray-500 text-3xl mb-4"></i>
+                <p class="text-gray-400">No stakes yet</p>
+                <a href="{{ url_for('stake') }}" class="text-purple-400 hover:text-purple-300 mt-2 inline-block">Start your first stake</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Platform Features -->
+    <div class="mb-6">
+        <h3 class="text-lg font-semibold text-white mb-4 fade-in">Why Choose Our Platform?</h3>
+        <div class="glass-card p-6 rounded-xl fade-in fade-in-delay-1">
+            <div class="space-y-4">
+                <div class="flex items-start space-x-4 feature-item">
+                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-shield-alt text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-semibold mb-1">Advanced Security</h4>
+                        <p class="text-gray-300 text-sm">Military-grade encryption and multi-layer security protocols protect your investments. Your funds are secured with institutional-level cold storage and smart contract auditing.</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-4 feature-item">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-chart-line text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-semibold mb-1">High Returns</h4>
+                        <p class="text-gray-300 text-sm">Earn competitive daily interest rates up to 2.8% with our optimized staking algorithms. Multiple coin options and flexible duration plans to maximize your profits.</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-4 feature-item">
+                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-users text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-semibold mb-1">Referral Rewards</h4>
+                        <p class="text-gray-300 text-sm">Build your network and earn passive income. Get 20 USDT bonus for 2 referrals plus ongoing commission. Premium members enjoy zero withdrawal fees and extra 2% staking income.</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-4 feature-item">
+                    <div class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-lightning-bolt text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-semibold mb-1">Instant Processing</h4>
+                        <p class="text-gray-300 text-sm">Lightning-fast deposits and withdrawals with support for major networks (BEP20, TRC20). 24/7 automated processing ensures your transactions are completed quickly.</p>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notice -->
+    <div class="glass-card p-4 rounded-xl bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-500/30">
+        <div class="flex items-start space-x-3">
+            <i class="fas fa-info-circle text-blue-400 mt-1"></i>
+            <div>
+                <p class="text-white font-medium mb-1">Important Notice</p>
+                <p class="text-gray-300 text-sm">Interest rates depend on market conditions. Your funds are secured by smart contracts with no third-party involvement.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

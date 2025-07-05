@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - USDT Staking Platform</title>
+    
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a40 25%, #2d1b69 50%, #6B46C1 75%, #9333EA 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+        .gradient-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .gradient-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-coins text-white text-3xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+                Join USDT Staking
+            </h1>
+            <p class="text-gray-300">Create your account and start earning today</p>
+        </div>
+
+        <!-- Register Form -->
+        <div class="glass-card p-8 rounded-2xl">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                
+                <!-- Username Field -->
+                <div class="mb-4">
+                    <label class="block text-white text-sm font-medium mb-2">
+                        <i class="fas fa-user mr-2"></i>Username
+                    </label>
+                    {{ form.username(class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500", placeholder="Choose a username") }}
+                    {% if form.username.errors %}
+                        {% for error in form.username.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Email Field -->
+                <div class="mb-4">
+                    <label class="block text-white text-sm font-medium mb-2">
+                        <i class="fas fa-envelope mr-2"></i>Email Address
+                    </label>
+                    {{ form.email(class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500", placeholder="Enter your email") }}
+                    {% if form.email.errors %}
+                        {% for error in form.email.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Phone Number Field -->
+                <div class="mb-4">
+                    <label class="block text-white text-sm font-medium mb-2">
+                        <i class="fas fa-phone mr-2"></i>Phone Number
+                    </label>
+                    {{ form.phone_number(class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500", placeholder="Enter your phone number") }}
+                    {% if form.phone_number.errors %}
+                        {% for error in form.phone_number.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Password Field -->
+                <div class="mb-4">
+                    <label class="block text-white text-sm font-medium mb-2">
+                        <i class="fas fa-lock mr-2"></i>Password
+                    </label>
+                    <div class="relative">
+                        {{ form.password(class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500", placeholder="Create a strong password", id="passwordInput") }}
+                        <button type="button" onclick="togglePassword('passwordInput', 'eyeIcon1')" class="absolute right-3 top-3 text-gray-400 hover:text-white">
+                            <i class="fas fa-eye" id="eyeIcon1"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                        {% for error in form.password.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div class="mb-4">
+                    <label class="block text-white text-sm font-medium mb-2">
+                        <i class="fas fa-lock mr-2"></i>Confirm Password
+                    </label>
+                    <div class="relative">
+                        {{ form.confirm_password(class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500", placeholder="Confirm your password", id="confirmPasswordInput") }}
+                        <button type="button" onclick="togglePassword('confirmPasswordInput', 'eyeIcon2')" class="absolute right-3 top-3 text-gray-400 hover:text-white">
+                            <i class="fas fa-eye" id="eyeIcon2"></i>
+                        </button>
+                    </div>
+                    {% if form.confirm_password.errors %}
+                        {% for error in form.confirm_password.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Referral Code Field -->
+                <div class="mb-6">
+                    <label class="block text-white text-sm font-medium mb-2">
+                        <i class="fas fa-gift mr-2"></i>Referral Code (Optional)
+                    </label>
+                    {{ form.referral_code(class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500", placeholder="Enter referral code to earn bonus") }}
+                    {% if form.referral_code.errors %}
+                        {% for error in form.referral_code.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <p class="text-gray-400 text-xs mt-1">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Get bonus rewards when you stake using a referral code!
+                    </p>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full gradient-button py-3 rounded-lg font-medium text-white mb-6">
+                    <i class="fas fa-user-plus mr-2"></i>Create Account
+                </button>
+            </form>
+
+            <!-- Links -->
+            <div class="text-center space-y-2">
+                <p class="text-gray-300 text-sm">
+                    Already have an account? 
+                    <a href="{{ url_for('login') }}" class="text-purple-400 hover:text-purple-300 font-medium">Sign in here</a>
+                </p>
+                <a href="{{ url_for('index') }}" class="text-gray-400 hover:text-white text-sm">
+                    <i class="fas fa-arrow-left mr-1"></i>Back to Home
+                </a>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mt-4 space-y-2">
+                    {% for category, message in messages %}
+                        <div class="glass-card p-4 rounded-lg {% if category == 'error' %}bg-red-500/20 border-red-500/30{% elif category == 'success' %}bg-green-500/20 border-green-500/30{% else %}bg-blue-500/20 border-blue-500/30{% endif %}">
+                            <p class="text-white text-sm">{{ message }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Referral Info -->
+        <div class="mt-6 glass-card p-4 rounded-xl">
+            <h3 class="text-white font-medium mb-2">
+                <i class="fas fa-users text-purple-400 mr-2"></i>Referral Program
+            </h3>
+            <div class="space-y-2 text-sm text-gray-300">
+                <p><i class="fas fa-star text-yellow-400 mr-2"></i>Level 1: 5% commission</p>
+                <p><i class="fas fa-star text-yellow-400 mr-2"></i>Level 2: 3% commission</p>
+                <p><i class="fas fa-star text-yellow-400 mr-2"></i>Level 3: 2% commission</p>
+                <p class="text-purple-400 text-xs mt-2">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Earn commissions when your referrals stake $100+ USDT
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword(inputId, eyeIconId) {
+            const passwordInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(eyeIconId);
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+</html>

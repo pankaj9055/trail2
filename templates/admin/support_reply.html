@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6 max-w-4xl">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-white">Reply to Support Message</h1>
+        <a href="{{ url_for('admin_support') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Support
+        </a>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+        <!-- Original Message -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- User Message -->
+            <div class="glass-card p-6 rounded-xl">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                        <span class="text-white font-bold">{{ message.user.username[0].upper() }}</span>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-semibold">{{ message.subject }}</h3>
+                        <p class="text-gray-400 text-sm">from {{ message.user.username }} • {{ message.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-2 mb-4">
+                    <span class="px-2 py-1 {% if message.status == 'open' %}bg-yellow-600 text-yellow-100{% elif message.status == 'replied' %}bg-green-600 text-green-100{% else %}bg-gray-600 text-gray-100{% endif %} rounded-full text-xs">
+                        {{ message.status.title() }}
+                    </span>
+                    <span class="px-2 py-1 {% if message.priority == 'urgent' %}bg-red-600 text-red-100{% elif message.priority == 'high' %}bg-orange-600 text-orange-100{% else %}bg-blue-600 text-blue-100{% endif %} rounded-full text-xs">
+                        {{ message.priority.title() }} Priority
+                    </span>
+                </div>
+
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <p class="text-gray-300">{{ message.message }}</p>
+                </div>
+                
+                {% if message.admin_reply %}
+                <div class="mt-4 bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg p-4 border-l-4 border-blue-500">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <i class="fas fa-user-shield text-blue-400"></i>
+                        <span class="text-blue-400 font-medium text-sm">Previous Reply</span>
+                        {% if message.replied_at %}
+                        <span class="text-gray-400 text-xs">{{ message.replied_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-gray-300 text-sm">{{ message.admin_reply }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Reply Form -->
+            <div class="glass-card p-6 rounded-xl">
+                <h3 class="text-lg font-semibold text-white mb-4">
+                    <i class="fas fa-reply mr-2 text-blue-400"></i>Send Reply
+                </h3>
+                
+                <form method="POST" class="space-y-4">
+                    {{ form.hidden_tag() }}
+                    
+                    <div>
+                        {{ form.admin_reply.label(class="block text-gray-400 text-sm mb-2") }}
+                        {{ form.admin_reply(class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-3 text-white focus:outline-none focus:border-blue-500 resize-vertical min-h-32", placeholder="Type your response here...") }}
+                        {% for error in form.admin_reply.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.status.label(class="block text-gray-400 text-sm mb-2") }}
+                        {{ form.status(class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500") }}
+                        {% for error in form.status.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="flex space-x-4">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors font-semibold">
+                            <i class="fas fa-paper-plane mr-2"></i>Send Reply
+                        </button>
+                        <a href="{{ url_for('admin_support') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- User Info Sidebar -->
+        <div class="space-y-6">
+            <!-- User Details -->
+            <div class="glass-card p-4 rounded-xl">
+                <h4 class="text-white font-semibold mb-4">User Information</h4>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Username:</span>
+                        <span class="text-white">{{ message.user.username }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Email:</span>
+                        <span class="text-white text-xs">{{ message.user.email }}</span>
+                    </div>
+                    {% if message.user.phone_number %}
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Phone:</span>
+                        <span class="text-white">{{ message.user.phone_number }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Joined:</span>
+                        <span class="text-white">{{ message.user.created_at.strftime('%Y-%m-%d') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Status:</span>
+                        <span class="{% if message.user.is_active %}text-green-400{% else %}text-red-400{% endif %}">
+                            {{ 'Active' if message.user.is_active else 'Inactive' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Stats -->
+            <div class="glass-card p-4 rounded-xl">
+                <h4 class="text-white font-semibold mb-4">Account Stats</h4>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">USDT Balance:</span>
+                        <span class="text-green-400 font-medium">${{ "%.2f"|format(message.user.usdt_balance) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Total Staked:</span>
+                        <span class="text-blue-400 font-medium">${{ "%.2f"|format(message.user.total_staked) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Total Earned:</span>
+                        <span class="text-purple-400 font-medium">${{ "%.2f"|format(message.user.total_earned) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Referrals:</span>
+                        <span class="text-yellow-400 font-medium">{{ message.user.get_referral_count() }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="glass-card p-4 rounded-xl">
+                <h4 class="text-white font-semibold mb-4">Quick Actions</h4>
+                <div class="space-y-2">
+                    <a href="{{ url_for('admin_edit_user', user_id=message.user.id) }}" 
+                       class="w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-3 rounded-lg transition-colors text-sm block">
+                        <i class="fas fa-user-edit mr-2"></i>Edit User
+                    </a>
+                    {% if message.user.is_active %}
+                    <button onclick="banUser({{ message.user.id }})" 
+                            class="w-full bg-red-600 hover:bg-red-700 text-white text-center py-2 px-3 rounded-lg transition-colors text-sm">
+                        <i class="fas fa-ban mr-2"></i>Ban User
+                    </button>
+                    {% else %}
+                    <button onclick="unbanUser({{ message.user.id }})" 
+                            class="w-full bg-green-600 hover:bg-green-700 text-white text-center py-2 px-3 rounded-lg transition-colors text-sm">
+                        <i class="fas fa-check mr-2"></i>Unban User
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Response Templates -->
+            <div class="glass-card p-4 rounded-xl">
+                <h4 class="text-white font-semibold mb-4">Quick Responses</h4>
+                <div class="space-y-2 text-xs">
+                    <button onclick="insertResponse('Thank you for contacting support. I\\'ll help you resolve this issue.')" 
+                            class="w-full text-left bg-gray-700 hover:bg-gray-600 text-gray-300 p-2 rounded transition-colors">
+                        Standard greeting
+                    </button>
+                    <button onclick="insertResponse('Your issue has been resolved. Please let us know if you need further assistance.')" 
+                            class="w-full text-left bg-gray-700 hover:bg-gray-600 text-gray-300 p-2 rounded transition-colors">
+                        Issue resolved
+                    </button>
+                    <button onclick="insertResponse('We need more information to help you. Please provide additional details about your issue.')" 
+                            class="w-full text-left bg-gray-700 hover:bg-gray-600 text-gray-300 p-2 rounded transition-colors">
+                        Request more info
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function insertResponse(text) {
+    const textarea = document.getElementById('admin_reply');
+    if (textarea) {
+        textarea.value = text;
+        textarea.focus();
+    }
+}
+
+function banUser(userId) {
+    if (confirm('Are you sure you want to ban this user?')) {
+        fetch(`/admin/users/ban/${userId}`, {
+            method: 'POST'
+        }).then(() => location.reload());
+    }
+}
+
+function unbanUser(userId) {
+    if (confirm('Are you sure you want to unban this user?')) {
+        fetch(`/admin/users/unban/${userId}`, {
+            method: 'POST'
+        }).then(() => location.reload());
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4">
+    <div class="auth-container max-w-md w-full">
+        <!-- Logo and Title -->
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 glow">
+                <i class="fas fa-coins text-white text-3xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+            <p class="text-gray-400">Sign in to your staking account</p>
+        </div>
+
+        <!-- Login Form -->
+        <div class="glass-card p-8 rounded-2xl shadow-2xl">
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+                
+                <div class="form-group">
+                    <label for="email" class="block text-gray-300 text-sm font-medium mb-2">
+                        <i class="fas fa-envelope mr-2"></i>Email Address
+                    </label>
+                    {{ form.email(class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300", placeholder="Enter your email") }}
+                    {% if form.email.errors %}
+                        {% for error in form.email.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="block text-gray-300 text-sm font-medium mb-2">
+                        <i class="fas fa-lock mr-2"></i>Password
+                    </label>
+                    {{ form.password(class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300", placeholder="Enter your password") }}
+                    {% if form.password.errors %}
+                        {% for error in form.password.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="w-full gradient-button py-3 rounded-xl font-semibold text-lg transform hover:scale-105 transition-all duration-300 glow">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="flex items-center my-6">
+                <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
+                <span class="px-4 text-gray-400 text-sm">OR</span>
+                <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
+            </div>
+
+            <!-- Register Link -->
+            <div class="text-center">
+                <p class="text-gray-400">Don't have an account?</p>
+                <a href="{{ url_for('register') }}" class="text-purple-400 hover:text-purple-300 font-semibold transition-colors duration-300">
+                    Create Account
+                </a>
+            </div>
+        </div>
+
+        <!-- Features Preview -->
+        <div class="mt-8 grid grid-cols-2 gap-4">
+            <div class="feature-preview glass-card p-4 rounded-xl text-center">
+                <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i class="fas fa-shield-alt text-white"></i>
+                </div>
+                <p class="text-white text-sm font-medium">Secure</p>
+                <p class="text-gray-400 text-xs">Smart Contract</p>
+            </div>
+            <div class="feature-preview glass-card p-4 rounded-xl text-center">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i class="fas fa-percentage text-white"></i>
+                </div>
+                <p class="text-white text-sm font-medium">High Yield</p>
+                <p class="text-gray-400 text-xs">Up to 4.8% Daily</p>
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="text-center mt-6">
+            <a href="{{ url_for('index') }}" class="text-gray-400 hover:text-white transition-colors duration-300">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
